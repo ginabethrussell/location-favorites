@@ -1,4 +1,5 @@
 import * as SQLite from "expo-sqlite";
+import * as FileSystem from "expo-file-system";
 
 //connects or creates if does not exist
 const db = SQLite.openDatabase("placesTest.db");
@@ -54,5 +55,16 @@ export const fetchPlaces = () => {
       );
     });
   });
+  return promise;
+};
+
+export const clearPlaces = () => {
+  const promise = new Promise((resolve, reject) => {
+    db.transaction((tx) => {
+      tx.executeSql("DELETE * FROM placesTest", []);
+    });
+  });
+  const dbfile = FileSystem.documentDirectory / SQLite / placesTest.db;
+  console.log(dbfile);
   return promise;
 };

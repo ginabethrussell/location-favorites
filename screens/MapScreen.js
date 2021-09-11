@@ -9,16 +9,28 @@ import {
 import MapView, { Marker } from "react-native-maps";
 import Colors from "../constants/Colors";
 import lodash from "lodash";
+
 const MapScreen = (props) => {
   console.log(props.route);
-  const [selectedLocation, setSelectedLocation] = React.useState(null);
+  const initialLocation = lodash.get(
+    props.route.params,
+    "initialLocation",
+    null
+  );
+  const readonly = lodash.get(props.route.params, "readonly", null);
+  const [selectedLocation, setSelectedLocation] =
+    React.useState(initialLocation);
 
+  console.log(selectedLocation);
   const savePickedLocationHandler = React.useCallback(() => {
     if (!selectedLocation) return;
     props.navigation.navigate("NewPlace", { pickedLocation: selectedLocation });
   }, [selectedLocation]);
 
   React.useLayoutEffect(() => {
+    if (readonly) {
+      return;
+    }
     props.navigation.setOptions({
       headerRight: () => (
         <TouchableOpacity
@@ -31,13 +43,16 @@ const MapScreen = (props) => {
     });
   });
   const mapRegion = {
-    latitude: 37.78,
-    longitude: -122.43,
+    latitude: initialLocation ? initialLocation.lat : 37.78,
+    longitude: initialLocation ? initialLocation.long : -122.43,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   };
 
   const selectLocationHandler = (event) => {
+    if (readonly) {
+      return;
+    }
     console.log(event.nativeEvent);
     setSelectedLocation({
       lat: event.nativeEvent.coordinate.latitude,
